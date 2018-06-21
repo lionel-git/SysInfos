@@ -28,6 +28,10 @@ void test4()
 	std::cout << "Physical RAM => " << (float)statex.ullTotalPhys / (1024 * 1024 * 1024) << std::endl;
 	std::cout << "Avail RAM => " << (float)statex.ullAvailPhys / (1024 * 1024 * 1024) << std::endl;
 
+	unsigned long long ret=0;
+	bool b = GetPhysicallyInstalledSystemMemory(&ret);
+	std::cout << ret/1024.0 << " Mb" << std::endl;
+
 }
 
 
