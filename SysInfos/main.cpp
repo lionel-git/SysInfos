@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <windows.h>
 #include <stdio.h>
 #include <intrin.h>
@@ -7,6 +8,7 @@
 #include <bitset>
 #include <array>
 #include <string>
+#include <map>
 #include <intrin.h>
 
 #include <windows.h>
@@ -16,6 +18,95 @@
 #pragma comment(lib, "user32.lib")
 
 #define INFO_BUFFER_SIZE 32767
+
+typedef BOOL(WINAPI *LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
+
+
+std::string display_info(const SYSTEM_LOGICAL_PROCESSOR_INFORMATION& info)
+{
+	std::ostringstream os;
+	switch (info.Relationship)
+	{
+	case RelationProcessorCore:
+		os << "RelationProcessorCore";
+		break;
+	case RelationNumaNode:
+		os << "RelationNumaNode";
+		break;
+	case RelationCache:
+		os << "RelationCache";
+		break;
+	case RelationProcessorPackage:
+		os << "RelationProcessorPackage";
+		break;
+	case RelationGroup:
+		os << "RelationGroup";
+		break;
+	case RelationAll:
+		os << "RelationAll";
+		break;
+	default:
+		break;
+	}
+	os << " ";
+
+	switch (info.Cache.Type)
+	{
+	case CacheUnified:
+		os << "CacheUnified";
+		break;
+	case CacheInstruction:
+		os << "CacheInstruction";
+		break;
+	case CacheData:
+		os << "CacheData";
+		break;
+	case CacheTrace:
+		os << "CacheTrace";
+		break;
+	}
+	os << " ";
+
+	os << "L" << (int)info.Cache.Level << " ";
+	os << "Asso: " << (int)info.Cache.Associativity << " ";
+	os << "LS: " << info.Cache.LineSize << " ";
+	os << "Size: " << info.Cache.Size;
+	return os.str();
+}
+
+void test5()
+{
+	std::map<std::string, int> datas;
+
+	LPFN_GLPI glpi = (LPFN_GLPI)GetProcAddress(
+		GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
+
+	int l1_cache_Size=0;
+	int l2_cache_Size=0;
+	int l3_cache_Size=0;
+
+	if (glpi)
+	{
+		DWORD bytes = 0;
+		glpi(0, &bytes);
+		size_t size = bytes / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
+		std::vector<SYSTEM_LOGICAL_PROCESSOR_INFORMATION> info(size);
+		glpi(info.data(), &bytes);
+
+		for (size_t i = 0; i < size; i++)
+		{
+			
+			if (info[i].Relationship == RelationCache)
+			{
+				auto infoStr=display_info(info[i]);
+				datas[infoStr]++;		
+			}
+		}
+		for (auto it = datas.begin(); it != datas.end(); ++it)
+			std::cout << it->first << " (" << it->second << ")" << std::endl;
+	}
+}
+
 
 
 void test4()
@@ -123,6 +214,7 @@ int main(int argc, char **argv)
 	test1();
 	test0();
 	test4();
+	test5();
 	std::cout << "Wait key..." << std::endl;
 	int c=getchar();
 }
