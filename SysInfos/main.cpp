@@ -207,6 +207,21 @@ void test()
 		siSysInfo.dwActiveProcessorMask);
 }
 
+void test6()
+{
+	auto activeGroup = GetActiveProcessorGroupCount();
+	auto maxGroup = GetMaximumProcessorGroupCount();
+	std::cout << "Active Group count: " << activeGroup << "/" << maxGroup << std::endl;
+
+	auto activeProc = GetActiveProcessorCount(0);
+	std::cout << "Actve Proc count: " << activeProc << std::endl;
+
+
+
+}
+
+
+
 int main(int argc, char **argv)
 {
 	std::cout << "Hello world" << std::endl;
@@ -215,6 +230,7 @@ int main(int argc, char **argv)
 	test0();
 	test4();
 	test5();
+	test6();
 	std::cout << "Wait key..." << std::endl;
 	int c=getchar();
 }
