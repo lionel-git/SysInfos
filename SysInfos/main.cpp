@@ -21,8 +21,7 @@
 
 typedef BOOL(WINAPI *LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
 
-
-std::string display_info(const SYSTEM_LOGICAL_PROCESSOR_INFORMATION& info)
+std::string display_info_simple(const SYSTEM_LOGICAL_PROCESSOR_INFORMATION& info)
 {
 	std::ostringstream os;
 	switch (info.Relationship)
@@ -48,6 +47,13 @@ std::string display_info(const SYSTEM_LOGICAL_PROCESSOR_INFORMATION& info)
 	default:
 		break;
 	}
+	return os.str();
+}
+
+std::string display_info(const SYSTEM_LOGICAL_PROCESSOR_INFORMATION& info)
+{
+	std::ostringstream os;
+	os << display_info_simple(info);
 	os << " ";
 
 	switch (info.Cache.Type)
@@ -73,6 +79,16 @@ std::string display_info(const SYSTEM_LOGICAL_PROCESSOR_INFORMATION& info)
 	os << "Size: " << info.Cache.Size;
 	return os.str();
 }
+
+std::string display_info_numa(const SYSTEM_LOGICAL_PROCESSOR_INFORMATION& info)
+{
+	std::ostringstream os;
+	os << display_info_simple(info);
+	os << " ";
+	os << "Numa Node: " << (int)info.NumaNode.NodeNumber << " ";
+	return os.str();
+}
+
 
 void test5()
 {
@@ -100,6 +116,16 @@ void test5()
 			{
 				auto infoStr=display_info(info[i]);
 				datas[infoStr]++;		
+			}
+			else if (info[i].Relationship == RelationNumaNode)
+			{
+				auto infoStr = display_info_numa(info[i]);
+				datas[infoStr]++;
+			}
+			else
+			{
+				auto infoStr = display_info_simple(info[i]);
+				datas[infoStr]++;
 			}
 		}
 		for (auto it = datas.begin(); it != datas.end(); ++it)
