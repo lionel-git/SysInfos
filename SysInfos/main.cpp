@@ -15,6 +15,9 @@
 #include <iostream>
 #include <cstdlib>
 
+#include <intrin.h>
+
+
 #pragma comment(lib, "user32.lib")
 
 #define INFO_BUFFER_SIZE 32767
@@ -247,6 +250,13 @@ void test6()
 }
 
 
+void test7()
+{
+	unsigned int cpuInfo[4];
+	__cpuid((int*)cpuInfo, 1);
+	bool isVM= ((cpuInfo[2] >> 31) & 1) == 1;
+	std::cout << "IsVM: " << isVM << std::endl;
+}
 
 int main(int argc, char **argv)
 {
@@ -257,6 +267,7 @@ int main(int argc, char **argv)
 	test4();
 	test5();
 	test6();
+	test7();
 	std::cout << "Wait key..." << std::endl;
 	int c=getchar();
 }
